@@ -49,9 +49,6 @@ def start_server():
         print(f"服务器已启动在 http://localhost:{PORT}")
         print("按 Ctrl+C 停止服务器")
 
-        # 打开浏览器
-        webbrowser.open(f'http://localhost:{PORT}')
-
         # 启动服务器
         httpd.serve_forever()
     except KeyboardInterrupt:

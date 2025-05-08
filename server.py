@@ -3,7 +3,7 @@
 
 """
 简单的HTTP服务器，用于本地测试H5游戏
-自动尝试不同端口，避免端口冲突
+使用固定端口9003
 """
 
 import http.server
@@ -18,7 +18,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
         return super().end_headers()
-    
+
     def log_message(self, format, *args):
         # 减少日志输出
         if 'GET /favicon.ico' not in args[0]:
@@ -36,31 +36,33 @@ def find_free_port(start_port=8000, max_port=8100):
     return None
 
 def start_server():
-    # 查找可用端口
-    PORT = find_free_port()
-    if PORT is None:
-        print("无法找到可用端口，请关闭一些应用程序后重试。")
-        return
-    
+    # 使用固定端口9003
+    PORT = 9003
+
     # 创建服务器
     handler = MyHttpRequestHandler
-    
+
     try:
         httpd = socketserver.TCPServer(("", PORT), handler)
-        
+
         # 输出服务器信息
         print(f"服务器已启动在 http://localhost:{PORT}")
         print("按 Ctrl+C 停止服务器")
-        
+
         # 打开浏览器
         webbrowser.open(f'http://localhost:{PORT}')
-        
+
         # 启动服务器
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\n服务器已停止")
         if 'httpd' in locals():
             httpd.server_close()
+    except OSError as e:
+        if e.errno == 10048:  # 端口已被占用
+            print(f"错误: 端口 {PORT} 已被占用，请关闭占用该端口的应用后重试。")
+        else:
+            print(f"启动服务器时出错: {e}")
     except Exception as e:
         print(f"启动服务器时出错: {e}")
 
